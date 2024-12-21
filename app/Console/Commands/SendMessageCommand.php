@@ -8,11 +8,11 @@ use Illuminate\Console\Command;
 class SendMessageCommand extends Command
 {
     protected $signature = 'telegram:message';
-    protected $description = 'Сообщение о покупке акции';
+    protected $description = '';
 
     public function handle()
     {
-        $handler = new Handler;
+        $handler = new Handler();
             $handler->messageTo();
     }
 }

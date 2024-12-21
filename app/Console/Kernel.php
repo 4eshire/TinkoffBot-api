@@ -4,15 +4,19 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
     /**
      * Define the application's command schedule.
      */
-    protected function schedule(Schedule $schedule): void
+    protected function schedule(Schedule $schedule)
     {
-        $schedule->command('telegram:message')->weekdays()->everyFourHours()->between('10:00', '23:00')->timezone('Europe/Moscow');
+//        $schedule->command("inspire")->hourly();
+        $schedule->command('telegram:message')->cron('0 10,14,18,22 * * 1-5')
+            ->before(function () {Log::info('Стартуем');})
+            ->after(function () {Log::info('Типо готово');});
     }
 
     /**
