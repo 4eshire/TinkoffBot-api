@@ -25,12 +25,12 @@ class Handler extends WebhookHandler
             $MACD_signal = $query->{'MACD.signal|240'};
             if (($RSI >= 20 && $RSI <=25) && ($MACD_macd >= $MACD_signal)) {
                 foreach ($chats as $chat) {
-                    $chat->html("<b>Сигнал на покупку</b>\n$stock->name\n$stock->symbol\nRSI:$RSI\nMACD (синяя): $MACD_macd\nMACD (оранжевая): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
+                    $chat->html("<b>Сигнал на покупку</b>\n$stock->name\n$stock->symbol\nRSI: $RSI\nMACD (синяя): $MACD_macd\nMACD (оранжевая): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
                 }
             }
             elseif (($RSI >= 60 && $RSI <= 75) && ($MACD_macd <= $MACD_signal)) {
                 foreach ($chats as $chat) {
-                    $chat->html("<b>Сигнал на продажу</b>\n$stock->name\n$stock->symbol\nRSI:$RSI\nMACD (синяя): $MACD_macd\nMACD.signal (оранжевая): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
+                    $chat->html("<b>Сигнал на продажу</b>\n$stock->name\n$stock->symbol\nRSI: $RSI\nMACD (синяя): $MACD_macd\nMACD (оранжевая): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
                 }
             }
         }
