@@ -18,6 +18,7 @@ class Handler extends WebhookHandler
     public function messageTo(){
         $chats = TelegraphChat::all();
         $stocks = Stocks::all();
+
         foreach ($stocks as $stock){
             $query = json_decode($this->fetch($stock));
             $RSI = $query->{'RSI|240'};
