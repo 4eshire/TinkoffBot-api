@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Telegram\Handler;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class SendMessageCommand extends Command
 {
@@ -12,7 +13,9 @@ class SendMessageCommand extends Command
 
     public function handle()
     {
+        Log::info('Отправка сигналов началась');
         $handler = new Handler();
-            $handler->messageTo();
+        $handler->messageTo();
+	Log::info('Отправка сигналов завершена');
     }
 }

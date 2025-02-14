@@ -13,9 +13,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        Log::info('Отправка сигналов началась');
-        $schedule->command('telegram:message');
-        Log::info('Отправка сигналов завершена');
+        $schedule->command('telegram:message')
+            ->before(function () {Log::info('Отправка сигналов началась');})
+            ->after(function () {Log::info('Отправка сигналов завершена');});;
     }
 
     /**
