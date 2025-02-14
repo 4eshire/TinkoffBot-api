@@ -4,12 +4,16 @@ namespace App\Console\Commands;
 
 use App\Models\Stocks;
 use App\Telegram\Handler;
+use App\Traits\ExternalRequests;
 use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
+
 class SendMessageCommand extends Command
 {
+    use ExternalRequests;
+
     protected $signature = 'telegram:message';
     protected $description = '';
 
