@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Stocks;
 use App\Telegram\Handler;
+use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -13,9 +15,23 @@ class SendMessageCommand extends Command
 
     public function handle()
     {
-        Log::info('ŒÚÔ‡‚Í‡ ÒË„Ì‡ÎÓ‚ Ì‡˜‡Î‡Ò¸');
-        $handler = new Handler();
-        $handler->messageTo();
-	Log::info('ŒÚÔ‡‚Í‡ ÒË„Ì‡ÎÓ‚ Á‡‚Â¯ÂÌ‡');
+        $chats = TelegraphChat::all();
+        $stocks = Stocks::all();
+        foreach ($stocks as $stock){
+            $query = json_decode($this->fetch($stock));
+            $RSI = $query->{'RSI|240'};
+            $MACD_macd = $query->{'MACD.macd|240'};
+            $MACD_signal = $query->{'MACD.signal|240'};
+            if (($RSI >= 25 && $RSI <= 30) && ($MACD_macd >= $MACD_signal)) {
+                foreach ($chats as $chat) {
+                    $chat->html("<b>–°–∏–≥–Ω–∞–ª –Ω–∞ –ø–æ–∫—É–ø–∫—É</b>\n$stock->name\n$stock->symbol\nRSI: $RSI\nMACD (—Å–∏–Ω—è—è): $MACD_macd\nMACD (–æ—Ä–∞–Ω–∂–µ–≤–∞—è): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
+                }
+            }
+            elseif (($RSI >= 65 && $RSI <= 80) && ($MACD_macd <= $MACD_signal)) {
+                foreach ($chats as $chat) {
+                    $chat->html("<b>–°–∏–≥–Ω–∞–ª –Ω–∞ –ø—Ä–æ–¥–∞–∂—É</b>\n$stock->name\n$stock->symbol\nRSI: $RSI\nMACD (—Å–∏–Ω—è—è): $MACD_macd\nMACD (–æ—Ä–∞–Ω–∂–µ–≤–∞—è): $MACD_signal\nhttps://www.tbank.ru/invest/stocks/$stock->symbol?utm_source=security_share")->send();
+                }
+            }
+        }
     }
 }
