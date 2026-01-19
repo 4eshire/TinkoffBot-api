@@ -22,7 +22,7 @@ class CalculateIndicators extends Command
         foreach ($stocks as $stock) {
 
             // ДНЕВНЫЕ ДАННЫЕ
-            $daily = $moex->dailyCandles($stocks->sumbol);
+            $daily = $moex->dailyCandles($stocks->symbol);
             if (count($daily) < 60) continue;
 
             $dailyCloses = array_column($daily, 'close');
@@ -38,7 +38,7 @@ class CalculateIndicators extends Command
             $lastWeekly = count($weeklyCloses) - 1;
 
             $row = [
-                'ticker' => $stock->sumbol,
+                'ticker' => $stock->symbol,
                 'week' => $weekly[$lastWeekly]['date'],
                 'macd' => round($macd[$lastWeekly], 4),
                 'signal' => round($signal[$lastWeekly], 4),
@@ -48,7 +48,7 @@ class CalculateIndicators extends Command
 
             foreach ($chats as $chat) {
                 $chat->send(
-                    "📊 {$stock->sumbol}\n".
+                    "📊 {$stock->symbol}\n".
                     "MACD (Weekly): {$row['macd']}\n".
                     "Histogram: {$row['histogram']}\n".
                     "RSI(21) Daily: {$row['rsi21_daily']}"
