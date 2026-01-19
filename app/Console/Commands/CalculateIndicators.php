@@ -34,7 +34,7 @@ class CalculateIndicators extends Command
             if (count($weekly) < 30) continue;
 
             $weeklyCloses = array_column($weekly, 'close');
-            [$macd, $signal, $hist] = $ind->macd($weeklyCloses);
+            [$macd, $signal] = $ind->macd($weeklyCloses);
             $lastWeekly = count($weeklyCloses) - 1;
 
             $row = [
@@ -42,7 +42,6 @@ class CalculateIndicators extends Command
                 'week' => $weekly[$lastWeekly]['date'],
                 'macd' => round($macd[$lastWeekly], 4),
                 'signal' => round($signal[$lastWeekly], 4),
-                'histogram' => round($hist[$lastWeekly], 4),
                 'rsi21_daily' => round($rsi[$lastDaily], 2),
             ];
 
@@ -50,7 +49,6 @@ class CalculateIndicators extends Command
                 $chat->send(
                     "📊 {$stock->symbol}\n".
                     "MACD (Weekly): {$row['macd']}\n".
-                    "Histogram: {$row['histogram']}\n".
                     "RSI(21) Daily: {$row['rsi21_daily']}"
                 );
             }
