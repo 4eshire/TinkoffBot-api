@@ -36,7 +36,7 @@ class IndicatorService
             array_keys($macd)
         );
 
-        return [$macd, $signal, $hist];
+        return [$macd, $signal];
     }
 
     // RSI (21) — дневной
