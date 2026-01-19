@@ -66,6 +66,6 @@ class IndicatorService
                 : 100 - (100 / (1 + $avgGain / $avgLoss));
         }
 
-        return $rsi;
+        return $rsi ?? [];
     }
 }
