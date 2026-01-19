@@ -12,7 +12,7 @@ class MoexService
             "https://iss.moex.com/iss/engines/stock/markets/shares/securities/{$symbol}/candles.json",
             [
                 'interval' => 24,
-                'from' => now()->subYears(5)->toDateString(),
+                'from' => now()->subYears(2)->toDateString(),
                 'till' => now()->toDateString(),
             ]
         )->json();

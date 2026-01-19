@@ -42,11 +42,11 @@ class CalculateIndicators extends Command
                 'week' => $weekly[$lastWeekly]['date'],
                 'macd' => round($macd[$lastWeekly], 4),
                 'signal' => round($signal[$lastWeekly], 4),
-                'rsi21_daily' => round($rsi[$lastDaily], 2),
+                'rsi21_daily' => array_key_exists($lastDaily, $rsi) ? round($rsi[$lastDaily], 2) : 'иди дебажить',
             ];
 
             foreach ($chats as $chat) {
-                $chat->send(
+                $chat->message(
                     "📊 {$stock->symbol}\n".
                     "MACD (Weekly): {$row['macd']}\n".
                     "RSI(21) Daily: {$row['rsi21_daily']}"
