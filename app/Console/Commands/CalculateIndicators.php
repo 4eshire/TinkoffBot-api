@@ -22,7 +22,7 @@ class CalculateIndicators extends Command
         foreach ($stocks as $stock) {
 
             // ДНЕВНЫЕ ДАННЫЕ
-            $daily = $moex->dailyCandles($stocks->symbol);
+            $daily = $moex->dailyCandles($stock->symbol);
             if (count($daily) < 60) continue;
 
             $dailyCloses = array_column($daily, 'close');
