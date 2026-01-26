@@ -10,6 +10,7 @@ use App\Services\{MoexService, IndicatorService};
 class CalculateIndicators extends Command
 {
     protected $signature = 'indicators:run';
+    protected $description = '';
 
     public function handle(
         MoexService $moex,
@@ -46,11 +47,11 @@ class CalculateIndicators extends Command
             ];
 
             foreach ($chats as $chat) {
-                $chat->message("Проверка cron"
-//                    "📊 {$stock->symbol}\n".
-//                    "MACD (Weekly): {$row['macd']}\n".
-//                    "RSI(21) Daily: {$row['rsi21_daily']}"
-                );
+                $chat->message(
+                    "📊 {$stock->symbol}\n".
+                    "MACD (Weekly): {$row['macd']}\n".
+                    "RSI(21) Daily: {$row['rsi21_daily']}"
+                )->send();
             }
 
             $result[] = $row;
