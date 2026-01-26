@@ -13,14 +13,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-//        $schedule->command('telegram:message')
-//            ->before(function () {Log::info('Отправка сигналов началась');})
-//            ->after(function () {Log::info('Отправка сигналов завершена');});
-
         $schedule->command('indicators:run')
-            ->weekdays()
-            ->at('23:45')
-            ->withoutOverlapping();
+            ->before(function () {Log::info('Отправка сигналов началась');})
+            ->after(function () {Log::info('Отправка сигналов завершена');});
+
+//        $schedule->command('indicators:run')
+//            ->weekdays()
+//            ->at('23:45')
+//            ->withoutOverlapping();
     }
 
     /**

@@ -46,7 +46,7 @@ class CalculateIndicators extends Command
             ];
 
             foreach ($chats as $chat) {
-                $chat->message("123"
+                $chat->message("Проверка cron"
 //                    "📊 {$stock->symbol}\n".
 //                    "MACD (Weekly): {$row['macd']}\n".
 //                    "RSI(21) Daily: {$row['rsi21_daily']}"
