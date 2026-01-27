@@ -33,12 +33,11 @@ class CalculateIndicators extends Command
             $weeklyClose = array_map(fn($c) => (float)$c['close'], $weekly);
             $macd = $ind->macd($weeklyClose);
 
-            $this->line('RSI(21) last: ' . round($rsiLast, 2));
-            $this->line('MACD last: ' . round(end($macd['macd']), 2));
-            $this->line('Signal last: ' . round(end($macd['signal']), 2));
-        }
+//            $this->line('RSI(21) last: ' . round($rsiLast, 2));
+//            $this->line('MACD last: ' . round(end($macd['macd']), 2));
+//            $this->line('Signal last: ' . round(end($macd['signal']), 2));
 
-        foreach ($chats as $chat) {
+            foreach ($chats as $chat) {
                 $chat->message(
                     "📊 {$stock->symbol}\n".
                     "{$stock->name}\n".
@@ -48,6 +47,7 @@ class CalculateIndicators extends Command
                     "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
                 )->send();
             }
+        }
 
         return self::SUCCESS;
     }
