@@ -4,68 +4,67 @@ namespace App\Services;
 
 class IndicatorService
 {
-    private function ema(array $data, int $period): array
-    {
-        $k = 2 / ($period + 1);
-        $ema[0] = $data[0];
 
-        for ($i = 1; $i < count($data); $i++) {
-            $ema[$i] = $data[$i] * $k + $ema[$i - 1] * (1 - $k);
+    private function ema(array $values, int $period): array
+    {
+        $ema = [];
+        $k = 2 / ($period + 1);
+
+        $ema[0] = $values[0];
+
+        for ($i = 1; $i < count($values); $i++) {
+            $ema[$i] = ($values[$i] - $ema[$i - 1]) * $k + $ema[$i - 1];
         }
 
         return $ema;
     }
 
-    // MACD (8,17,9) — недельный
-    public function macd(array $closes): array
+    public function rsi(array $prices, int $period = 21): array
     {
-        $ema8  = $this->ema($closes, 8);
-        $ema17 = $this->ema($closes, 17);
+        $rsi = [];
+        $gains = [];
+        $losses = [];
 
-        $macd = array_map(
-            fn($v, $i) => $v - $ema17[$i],
-            $ema8,
-            array_keys($ema8)
-        );
+        for ($i = 1; $i < count($prices); $i++) {
+            $change = $prices[$i] - $prices[$i - 1];
+            $gains[]  = max($change, 0);
+            $losses[] = max(-$change, 0);
+        }
 
-        $signal = $this->ema($macd, 9);
-
-        $hist = array_map(
-            fn($v, $i) => $v - $signal[$i],
-            $macd,
-            array_keys($macd)
-        );
-
-        return [$macd, $signal];
-    }
-
-    // RSI (21) — дневной
-    public function rsi(array $closes, int $period = 21): array
-    {
-        $gains = $losses = [];
-
-        for ($i = 1; $i < count($closes); $i++) {
-            $diff = $closes[$i] - $closes[$i - 1];
-            $gains[] = max($diff, 0);
-            $losses[] = max(-$diff, 0);
+        if (count($gains) < $period) {
+            return [];
         }
 
         $avgGain = array_sum(array_slice($gains, 0, $period)) / $period;
         $avgLoss = array_sum(array_slice($losses, 0, $period)) / $period;
 
-        $rsi[$period] = $avgLoss == 0
-            ? 100
-            : 100 - (100 / (1 + $avgGain / $avgLoss));
+        $rs = $avgLoss == 0 ? 0 : $avgGain / $avgLoss;
+        $rsi[$period] = 100 - (100 / (1 + $rs));
 
-        for ($i = $period + 1; $i < count($gains); $i++) {
-            $avgGain = ($avgGain * ($period - 1) + $gains[$i]) / $period;
-            $avgLoss = ($avgLoss * ($period - 1) + $losses[$i]) / $period;
+        for ($i = $period; $i < count($gains); $i++) {
+            $avgGain = (($avgGain * ($period - 1)) + $gains[$i]) / $period;
+            $avgLoss = (($avgLoss * ($period - 1)) + $losses[$i]) / $period;
 
-            $rsi[$i] = $avgLoss == 0
-                ? 100
-                : 100 - (100 / (1 + $avgGain / $avgLoss));
+            $rs = $avgLoss == 0 ? 0 : $avgGain / $avgLoss;
+            $rsi[$i + 1] = 100 - (100 / (1 + $rs));
         }
 
-        return $rsi ?? [];
+        return $rsi;
+    }
+
+    public function macd(array $prices, int $fast = 8, int $slow = 17, int $signal = 9): array
+    {
+        $emaFast = $this->ema($prices, $fast);
+        $emaSlow = $this->ema($prices, $slow);
+
+        $macd = [];
+        foreach ($prices as $i => $_) {
+            $macd[$i] = $emaFast[$i] - $emaSlow[$i];
+        }
+
+        $signalLine = $this->ema(array_values($macd), $signal);
+
+
+        return ['macd' => $macd, 'signal' => $signalLine];
     }
 }

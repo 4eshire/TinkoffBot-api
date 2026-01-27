@@ -6,47 +6,32 @@ use Illuminate\Support\Facades\Http;
 
 class MoexService
 {
-    public function dailyCandles(string $symbol): array
+    private function candles(string $ticker, int $interval, string $from, string $till): array
     {
-        $response = Http::get(
-            "https://iss.moex.com/iss/engines/stock/markets/shares/securities/{$symbol}/candles.json",
-            [
-                'interval' => 24,
-                'from' => now()->subYears(2)->toDateString(),
-                'till' => now()->toDateString(),
-            ]
-        )->json();
+        $url = "https://iss.moex.com/iss/engines/stock/markets/shares/securities/{$ticker}/candles.json";
 
-        $data = [];
-        foreach ($response['candles']['data'] ?? [] as $row) {
-            $data[] = [
-                'date'  => substr($row[0], 0, 10),
-                'open'  => (float)$row[1],
-                'high'  => (float)$row[2],
-                'low'   => (float)$row[3],
-                'close' => (float)$row[4],
-            ];
-        }
+        $json = Http::get($url, [
+            'interval' => $interval,
+            'from'     => $from,
+            'till'     => $till,
+        ])->json();
 
-        return $data;
+        $columns = $json['candles']['columns'] ?? [];
+        $data    = $json['candles']['data'] ?? [];
+
+        return array_values(array_filter(
+            array_map(fn ($row) => array_combine($columns, $row), $data),
+            fn ($c) => isset($c['close']) && $c['close'] > 0
+        ));
     }
 
-    public function aggregateWeekly(array $daily): array
+    public function daily(string $ticker, string $from, string $till): array
     {
-        $weeks = [];
+        return $this->candles($ticker, 24, $from, $till);
+    }
 
-        foreach ($daily as $candle) {
-            $key = date('o-W', strtotime($candle['date']));
-
-            if (!isset($weeks[$key])) {
-                $weeks[$key] = $candle;
-            } else {
-                $weeks[$key]['high']  = max($weeks[$key]['high'], $candle['high']);
-                $weeks[$key]['low']   = min($weeks[$key]['low'], $candle['low']);
-                $weeks[$key]['close'] = $candle['close'];
-            }
-        }
-
-        return array_values($weeks);
+    public function weekly(string $ticker, string $from, string $till): array
+    {
+        return $this->candles($ticker, 7, $from, $till);
     }
 }

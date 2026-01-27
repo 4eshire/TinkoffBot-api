@@ -12,53 +12,87 @@ class CalculateIndicators extends Command
     protected $signature = 'indicators:run';
     protected $description = '';
 
-    public function handle(
-        MoexService $moex,
-        IndicatorService $ind
-    ) {
-        $stocks = Stocks::all();
+    public function handle(MoexService $moex, IndicatorService $ind)
+    {
         $chats = TelegraphChat::all();
-        $result = [];
+
+        $stocks = Stocks::all();
+
+        $from = now()->subYears(6)->toDateString();
+        $till = now()->toDateString();
 
         foreach ($stocks as $stock) {
+            $this->info("=== {$stock->symbol} ===");
 
-            // ДНЕВНЫЕ ДАННЫЕ
-            $daily = $moex->dailyCandles($stock->symbol);
-            if (count($daily) < 60) continue;
+            $daily = $moex->daily($stock->symbol, $from, $till);
+            $dailyClose = array_map(fn($c) => (float)$c['close'], $daily);
+            $rsi = $ind->rsi($dailyClose);
+            $rsiLast = $rsi[array_key_last($rsi)];
 
-            $dailyCloses = array_column($daily, 'close');
-            $rsi = $ind->rsi($dailyCloses, 21);
-            $lastDaily = count($dailyCloses) - 1;
+            $weekly = $moex->weekly($stock->symbol, $from, $till);
+            $weeklyClose = array_map(fn($c) => (float)$c['close'], $weekly);
+            $macd = $ind->macd($weeklyClose);
 
-            // НЕДЕЛЬНЫЕ ДАННЫЕ
-            $weekly = $moex->aggregateWeekly($daily);
-            if (count($weekly) < 30) continue;
+            $this->line('RSI(21) last: ' . round($rsiLast, 2));
+            $this->line('MACD last: ' . round(end($macd['macd']), 2));
+            $this->line('Signal last: ' . round(end($macd['signal']), 2));
+        }
 
-            $weeklyCloses = array_column($weekly, 'close');
-            [$macd, $signal] = $ind->macd($weeklyCloses);
-            $lastWeekly = count($weeklyCloses) - 1;
-
-            $row = [
-                'ticker' => $stock->symbol,
-                'week' => $weekly[$lastWeekly]['date'],
-                'macd' => round($macd[$lastWeekly], 4),
-                'signal' => round($signal[$lastWeekly], 4),
-                'rsi21_daily' => array_key_exists($lastDaily, $rsi) ? round($rsi[$lastDaily], 2) : 'иди дебажить',
-            ];
-
-            foreach ($chats as $chat) {
+        foreach ($chats as $chat) {
                 $chat->message(
                     "📊 {$stock->symbol}\n".
-                    "MACD (Weekly): {$row['macd']}\n".
-                    "RSI(21) Daily: {$row['rsi21_daily']}"
+                    "{$stock->name}\n".
+                    "RSI(21) last: ".round($rsiLast, 2)." (=== Считается не коррктно ===)\n".
+                    "🟦MACD last: ".round(end($macd['macd']), 2)."\n".
+                    "🟧Signal last: ".round(end($macd['signal']), 2)."\n".
+                    "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
                 )->send();
             }
 
-            $result[] = $row;
-        }
-
-        $this->line(
-            json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-        );
+        return self::SUCCESS;
     }
+
+
+
 }
+
+//    public function handle(MoexService $moex, IndicatorService $indicators) {
+//        $stocks = Stocks::all();
+//        $from = now()->subYears(5)->toDateString();
+//        $till = now()->toDateString();
+//        $chats = TelegraphChat::all();
+//        $result = [];
+//
+//        foreach ($stocks as $stock) {
+//            $this->info("=== {$stock->symbol} ===");
+//
+//            $daily = $moex->getDailyCandles($stock->symbol, $from, $till);
+//            $dailyCloses = array_column($daily, 4);
+//
+//            $weekly = $moex->aggregateWeekly($daily);
+//            $weeklyCloses = array_column($weekly, 'close');
+//
+//            $rsi = $indicators->rsi($dailyCloses, 21);
+//            $macd = $indicators->macd($weeklyCloses);
+//
+//            $this->line("RSI(21) last: " . end($rsi));
+//            $this->line("MACD last: " . end($macd['macd']));
+//            $this->line("Signal last: " . end($macd['signal']));
+//            $this->newLine();
+//        }
+//
+////            foreach ($chats as $chat) {
+////                $chat->message(
+////                    "📊 {$stock->symbol}\n".
+////                    "MACD (Weekly): {$row['macd']}\n".
+////                    "RSI(21) Daily: {$row['rsi21_daily']}"
+////                )->send();
+////            }
+//
+////            $result[] = $row;
+//        }
+//
+////        $this->line(
+////            json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+////        );
+//}
