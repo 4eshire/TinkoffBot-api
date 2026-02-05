@@ -2,48 +2,66 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Stocks;
-use DefStudio\Telegraph\Models\TelegraphChat;
 use Illuminate\Console\Command;
+use App\Models\Stocks;
 use App\Services\{MoexService, IndicatorService};
+use DefStudio\Telegraph\Models\TelegraphChat;
 
 class CalculateIndicators extends Command
 {
     protected $signature = 'indicators:run';
-    protected $description = '';
+    protected $description = 'Calculate RSI and MACD indicators including current day';
 
     public function handle(MoexService $moex, IndicatorService $ind)
     {
-        $chats = TelegraphChat::all();
-
-        $stocks = Stocks::all();
-
-        $from = now()->subYears(6)->toDateString();
+        $from = now()->subYears(7)->toDateString();
         $till = now()->toDateString();
 
-        foreach ($stocks as $stock) {
+        foreach (Stocks::all() as $stock) {
             $this->info("=== {$stock->symbol} ===");
 
             $daily = $moex->daily($stock->symbol, $from, $till);
+
+            // ** НЕ УБИРАЕМ неполный текущий день, используем все данные **
+            if (count($daily) < 100) {
+                $this->warn("Недостаточно данных для {$stock->symbol}");
+                continue;
+            }
+
             $dailyClose = array_map(fn($c) => (float)$c['close'], $daily);
-            $rsi = $ind->rsi($dailyClose);
-            $rsiLast = $rsi[array_key_last($rsi)];
 
-            $weekly = $moex->weekly($stock->symbol, $from, $till);
+            $weekly = $moex->aggregateWeekly($daily);
             $weeklyClose = array_map(fn($c) => (float)$c['close'], $weekly);
-            $macd = $ind->macd($weeklyClose);
 
-//            $this->line('RSI(21) last: ' . round($rsiLast, 2));
-//            $this->line('MACD last: ' . round(end($macd['macd']), 2));
-//            $this->line('Signal last: ' . round(end($macd['signal']), 2));
+            $rsiValues = $ind->rsi($dailyClose, 21);
+            $rsiLast = round(end($rsiValues), 2);
 
-            foreach ($chats as $chat) {
+            $macd = $ind->macd($weeklyClose, 8, 17, 9);
+
+            $macdLast = null;
+            $signalLast = null;
+            foreach (array_reverse($macd['macd'], true) as $i => $v) {
+                if ($v !== null) {
+                    $macdLast = $v;
+                    $signalLast = $macd['signal'][$i] ?? null;
+                    break;
+                }
+            }
+
+            $macdLast = $macdLast !== null ? round($macdLast, 2) : null;
+            $signalLast = $signalLast !== null ? round($signalLast, 2) : null;
+
+            $this->line("RSI(21) (1D) last: {$rsiLast}");
+            $this->line("MACD (W) last: {$macdLast}");
+            $this->line("Signal last: {$signalLast}");
+
+            foreach (TelegraphChat::all() as $chat) {
                 $chat->message(
                     "📊 {$stock->symbol}\n".
                     "{$stock->name}\n".
-                    "RSI(21) last: ".round($rsiLast, 2)." (=== Считается не коррктно ===)\n".
-                    "🟦MACD last: ".round(end($macd['macd']), 2)."\n".
-                    "🟧Signal last: ".round(end($macd['signal']), 2)."\n".
+                    "RSI(21) (1D): {$rsiLast}\n".
+                    "🟦 MACD (W): {$macdLast}\n".
+                    "🟧 Signal: {$signalLast}\n".
                     "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
                 )->send();
             }
@@ -51,48 +69,4 @@ class CalculateIndicators extends Command
 
         return self::SUCCESS;
     }
-
-
-
 }
-
-//    public function handle(MoexService $moex, IndicatorService $indicators) {
-//        $stocks = Stocks::all();
-//        $from = now()->subYears(5)->toDateString();
-//        $till = now()->toDateString();
-//        $chats = TelegraphChat::all();
-//        $result = [];
-//
-//        foreach ($stocks as $stock) {
-//            $this->info("=== {$stock->symbol} ===");
-//
-//            $daily = $moex->getDailyCandles($stock->symbol, $from, $till);
-//            $dailyCloses = array_column($daily, 4);
-//
-//            $weekly = $moex->aggregateWeekly($daily);
-//            $weeklyCloses = array_column($weekly, 'close');
-//
-//            $rsi = $indicators->rsi($dailyCloses, 21);
-//            $macd = $indicators->macd($weeklyCloses);
-//
-//            $this->line("RSI(21) last: " . end($rsi));
-//            $this->line("MACD last: " . end($macd['macd']));
-//            $this->line("Signal last: " . end($macd['signal']));
-//            $this->newLine();
-//        }
-//
-////            foreach ($chats as $chat) {
-////                $chat->message(
-////                    "📊 {$stock->symbol}\n".
-////                    "MACD (Weekly): {$row['macd']}\n".
-////                    "RSI(21) Daily: {$row['rsi21_daily']}"
-////                )->send();
-////            }
-//
-////            $result[] = $row;
-//        }
-//
-////        $this->line(
-////            json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
-////        );
-//}
