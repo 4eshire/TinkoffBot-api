@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Stocks extends Model
+class Stock extends Model
 {
     use UuidScopeTrait, SoftDeletes;
 

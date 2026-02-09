@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Stocks;
+use App\Models\Stock;
 use App\Telegram\Handler;
 use App\Traits\ExternalRequests;
 use DefStudio\Telegraph\Models\TelegraphChat;
@@ -20,7 +20,7 @@ class SendMessageCommand extends Command
     public function handle()
     {
         $chats = TelegraphChat::all();
-        $stocks = Stocks::all();
+        $stocks = Stock::all();
         foreach ($stocks as $stock){
             $query = json_decode($this->fetch($stock));
             $RSI = $query->{'RSI|240'};

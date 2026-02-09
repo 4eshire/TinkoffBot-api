@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Stocks;
+use App\Models\Stock;
 use App\Services\{MoexService, IndicatorService};
 use DefStudio\Telegraph\Models\TelegraphChat;
 
@@ -17,7 +17,7 @@ class CalculateIndicators extends Command
         $from = now()->subYears(7)->toDateString();
         $till = now()->toDateString();
 
-        foreach (Stocks::all() as $stock) {
+        foreach (Stock::all() as $stock) {
             $this->info("=== {$stock->symbol} ===");
 
             $daily = $moex->daily($stock->symbol, $from, $till);
@@ -51,19 +51,36 @@ class CalculateIndicators extends Command
             $macdLast = $macdLast !== null ? round($macdLast, 2) : null;
             $signalLast = $signalLast !== null ? round($signalLast, 2) : null;
 
+            $minRsi = $stock->minRsi ?? 30;
+            $maxRsi = $stock->maxRsi ?? 70;
+
             $this->line("RSI(21) (1D) last: {$rsiLast}");
             $this->line("MACD (W) last: {$macdLast}");
             $this->line("Signal last: {$signalLast}");
 
             foreach (TelegraphChat::all() as $chat) {
-                $chat->message(
-                    "📊 {$stock->symbol}\n".
-                    "{$stock->name}\n".
-                    "RSI(21) (1D): {$rsiLast}\n".
-                    "🟦 MACD (W): {$macdLast}\n".
-                    "🟧 Signal: {$signalLast}\n".
-                    "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
-                )->send();
+                if (($macdLast < 0 && $signalLast < 0 && $macdLast >= $signalLast) && ($rsiLast <= $minRsi)) {
+                    $chat->message(
+                        "**Сигнал на открытие лонг позиции**".
+                        "📊 {$stock->symbol}\n".
+                        "{$stock->name}\n".
+                        "RSI(21) (1D): {$rsiLast}\n".
+                        "🟦 MACD (W): {$macdLast}\n".
+                        "🟧 Signal: {$signalLast}\n".
+                        "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
+                    )->send();
+                }
+                elseif (($macdLast > 0 && $signalLast > 0 && $macdLast <= $signalLast) && ($rsiLast >= $maxRsi)) {
+                    $chat->message(
+                        "**Сигнал на открытие шорт позиции**".
+                        "📊 {$stock->symbol}\n".
+                        "{$stock->name}\n".
+                        "RSI(21) (1D): {$rsiLast}\n".
+                        "🟦 MACD (W): {$macdLast}\n".
+                        "🟧 Signal: {$signalLast}\n".
+                        "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
+                    )->send();
+                }
             }
         }
 

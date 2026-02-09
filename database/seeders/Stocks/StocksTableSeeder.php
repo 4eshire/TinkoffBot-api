@@ -2,7 +2,7 @@
 
 namespace Database\Seeders\Stocks;
 
-use App\Models\Stocks;
+use App\Models\Stock;
 use Illuminate\Database\Seeder;
 
 class StocksTableSeeder extends Seeder
@@ -30,7 +30,7 @@ class StocksTableSeeder extends Seeder
     ];
     public function run() {
         collect($this->stocks)->each(function($data, $symbol) {
-            $stock = Stocks::firstOrCreate(['symbol' => $symbol, 'name' => $data['name']]);
+            $stock = Stock::firstOrCreate(['symbol' => $symbol, 'name' => $data['name']]);
             $stock->update(collect($data)->all());
         });
     }
