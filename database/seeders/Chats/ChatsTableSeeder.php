@@ -8,7 +8,7 @@ use Illuminate\Database\Seeder;
 class ChatsTableSeeder extends Seeder
 {
     public array $chats = [
-        'TinkoffBotApi' => ['token' => '7208417693:AAH5I3sYrZ1WV994R2YsLomkqpgdaceY4vk1'],
+        'TinkoffBotApi' => ['token' => '7208417693:AAFXAev5gHIudqwtUULUWq73cgieGnUuU-A'],
     ];
     public function run() {
         collect($this->chats)->each(function($data, $name) {

@@ -18,7 +18,9 @@ class Stock extends Model
     protected $fillable = [
         'uuid',
         'symbol',
-        'name'
+        'name',
+        'min_rsi',
+        'max_rsi',
     ];
 
     protected $hidden = [

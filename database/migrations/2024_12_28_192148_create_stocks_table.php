@@ -16,6 +16,8 @@ return new class extends Migration
             $table->char('uuid', 36)->index()->unique();
             $table->string('symbol')->index()->unique();
             $table->string('name')->index()->unique();
+            $table->decimal('min_rsi', 10)->nullable()->index();
+            $table->decimal('max_rsi', 10)->nullable()->index();
             $table->timestamps();
             $table->softDeletes();
         });

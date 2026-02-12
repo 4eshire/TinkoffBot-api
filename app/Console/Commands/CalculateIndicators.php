@@ -22,7 +22,6 @@ class CalculateIndicators extends Command
 
             $daily = $moex->daily($stock->symbol, $from, $till);
 
-            // ** НЕ УБИРАЕМ неполный текущий день, используем все данные **
             if (count($daily) < 100) {
                 $this->warn("Недостаточно данных для {$stock->symbol}");
                 continue;
@@ -51,8 +50,8 @@ class CalculateIndicators extends Command
             $macdLast = $macdLast !== null ? round($macdLast, 2) : null;
             $signalLast = $signalLast !== null ? round($signalLast, 2) : null;
 
-            $minRsi = $stock->minRsi ?? 30;
-            $maxRsi = $stock->maxRsi ?? 70;
+            $minRsi = $stock->min_rsi ?? 30;
+            $maxRsi = $stock->max_rsi ?? 70;
 
             $this->line("RSI(21) (1D) last: {$rsiLast}");
             $this->line("MACD (W) last: {$macdLast}");
@@ -61,7 +60,7 @@ class CalculateIndicators extends Command
             foreach (TelegraphChat::all() as $chat) {
                 if (($macdLast < 0 && $signalLast < 0 && $macdLast >= $signalLast) && ($rsiLast <= $minRsi)) {
                     $chat->message(
-                        "**Сигнал на открытие лонг позиции**".
+                        "📈**Сигнал на открытие лонг позиции**📈".
                         "📊 {$stock->symbol}\n".
                         "{$stock->name}\n".
                         "RSI(21) (1D): {$rsiLast}\n".
@@ -72,7 +71,7 @@ class CalculateIndicators extends Command
                 }
                 elseif (($macdLast > 0 && $signalLast > 0 && $macdLast <= $signalLast) && ($rsiLast >= $maxRsi)) {
                     $chat->message(
-                        "**Сигнал на открытие шорт позиции**".
+                        "📉**Сигнал на открытие шорт позиции**📉".
                         "📊 {$stock->symbol}\n".
                         "{$stock->name}\n".
                         "RSI(21) (1D): {$rsiLast}\n".
