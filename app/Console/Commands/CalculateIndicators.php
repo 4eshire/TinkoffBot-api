@@ -58,7 +58,7 @@ class CalculateIndicators extends Command
             $this->line("Signal last: {$signalLast}");
 
             foreach (TelegraphChat::all() as $chat) {
-                if (($macdLast < 0 && $signalLast < 0 && $macdLast >= $signalLast) && ($rsiLast <= $minRsi)) {
+                if ((/*$macdLast < 0 && $signalLast < 0 && */$macdLast >= $signalLast) && ($rsiLast <= $minRsi)) {
                     $chat->message(
                         "📈**Сигнал на открытие лонг позиции**📈".
                         "📊 {$stock->symbol}\n".
@@ -69,7 +69,7 @@ class CalculateIndicators extends Command
                         "https://www.tbank.ru/invest/stocks/{$stock->symbol}?utm_source=security_share"
                     )->send();
                 }
-                elseif (($macdLast > 0 && $signalLast > 0 && $macdLast <= $signalLast) && ($rsiLast >= $maxRsi)) {
+                elseif ((/*$macdLast > 0 && $signalLast > 0 && */$macdLast <= $signalLast) && ($rsiLast >= $maxRsi)) {
                     $chat->message(
                         "📉**Сигнал на открытие шорт позиции**📉".
                         "📊 {$stock->symbol}\n".
