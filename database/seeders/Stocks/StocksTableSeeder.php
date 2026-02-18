@@ -9,8 +9,8 @@ class StocksTableSeeder extends Seeder
 {
     public array $stocks = [
         'SOFL' => ['name' => 'Софтлайн', 'min_rsi' => 30, 'max_rsi' => 65],
-        'VSEH' => ['name' => 'ВИ.ру', 'min_rsi' => 20, 'max_rsi' => 70],
-        'CNRU' => ['name' => 'МКПАО "Циан"', 'min_rsi' => 35, 'max_rsi' => 70],
+        'VSEH' => ['name' => 'ВИ.ру', 'min_rsi' => 22, 'max_rsi' => 67],
+        'CNRU' => ['name' => 'МКПАО "Циан"', 'min_rsi' => 32, 'max_rsi' => 67],
         'LSRG' => ['name' => 'Группа ЛСР ПАО', 'min_rsi' => 30, 'max_rsi' => 60],
         'AQUA' => ['name' => 'ПАО ИНАРКТИКА', 'min_rsi' => 27, 'max_rsi' => 65],
         'TRMK' => ['name' => 'Трубная Металлургическая Компания', 'min_rsi' => 30, 'max_rsi' => 72],
@@ -41,7 +41,25 @@ class StocksTableSeeder extends Seeder
         'SELG' => ['name' => 'ПАО "Селигдар"', 'min_rsi' => 33, 'max_rsi' => 67],
         'AFLT' => ['name' => 'Аэрофлот-росс. авиалин (ПАО)ао', 'min_rsi' => 33, 'max_rsi' => 65],
         'ROSN' => ['name' => 'ПАО НК Роснефть', 'min_rsi' => 35, 'max_rsi' => 60],
-        'IRAO' => ['name' => '"Интер РАО" ПАО', 'min_rsi' => 30, 'max_rsi' => 65]
+        'IRAO' => ['name' => '"Интер РАО" ПАО', 'min_rsi' => 30, 'max_rsi' => 65],
+        'UGLD' => ['name' => 'Южуралзолото ГК', 'min_rsi' => 27, 'max_rsi' => 65],
+        'SMLT' => ['name' => 'ГК Самолет', 'min_rsi' => 32, 'max_rsi' => 62],
+        'AFKS' => ['name' => 'АФК "Система" ПАО', 'min_rsi' => 27, 'max_rsi' => 65],
+        'CHMF' => ['name' => 'Северсталь (ПАО)ао', 'min_rsi' => 30, 'max_rsi' => 60],
+        'TATN' => ['name' => 'ПАО "Татнефть" - обыкн.', 'min_rsi' => 30, 'max_rsi' => 60],
+        'UPRO' => ['name' => 'Юнипро ПАО', 'min_rsi' => 30, 'max_rsi' => 67],
+        'SIBN' => ['name' => 'Газпром нефть ПАО', 'min_rsi' => 30, 'max_rsi' => 60],
+        'BSPB' => ['name' => 'ПАО "Банк "Санкт-Петербург"', 'min_rsi' => 28, 'max_rsi' => 62],
+        'TATNP' => ['name' => 'ПАО "Татнефть" - прив.', 'min_rsi' => 30, 'max_rsi' => 65],
+        'LEAS' => ['name' => 'ПАО "ЛК "Европлан"', 'min_rsi' => 25, 'max_rsi' => 65],
+        'BANEP' => ['name' => 'Башнефть АНК - прив.', 'min_rsi' => 25, 'max_rsi' => 60],
+        'SVAV' => ['name' => 'ПАО "СОЛЛЕРС"', 'min_rsi' => 25, 'max_rsi' => 60],
+        'GTRK' => ['name' => 'ПАО "ГТМ"', 'min_rsi' => 27, 'max_rsi' => 62],
+        'GEMC' => ['name' => 'Юнайтед Медикал Груп ПАО', 'min_rsi' => 28, 'max_rsi' => 68],
+        'HNFG' => ['name' => 'ХЕНДЕРСОН', 'min_rsi' => 30, 'max_rsi' => 60],
+        'MSTT' => ['name' => 'ПАО "МОСТОТРЕСТ"', 'min_rsi' => 25, 'max_rsi' => 60],
+        'BANE' => ['name' => 'Башнефть АНК - обыкн.', 'min_rsi' => 30, 'max_rsi' => 60],
+        'FESH' => ['name' => 'Дальневосточное морское пароходство ПАО', 'min_rsi' => 28, 'max_rsi' => 60]
     ];
     public function run() {
         collect($this->stocks)->each(function($data, $symbol) {
