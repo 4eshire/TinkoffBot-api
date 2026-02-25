@@ -50,7 +50,7 @@ class CalculateIndicators extends Command
             $macdLast = $macdLast !== null ? round($macdLast, 2) : null;
             $signalLast = $signalLast !== null ? round($signalLast, 2) : null;
 
-            $minRsi = $stock->min_rsi ?? 30;
+            $minRsi = $stock->min_rsi + 10 ?? 30;
             $maxRsi = $stock->max_rsi ?? 70;
 
             $this->line("RSI(21) (1D) last: {$rsiLast}");
